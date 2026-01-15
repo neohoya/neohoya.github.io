@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+        max-width: 500px;
+        width: 100%;
+    }
+
+    h1 {
+        text-align: center;
+        color: #776e65;
+        margin-bottom: 10px;
+        font-size: 3em;
+    }
+
+    .score-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .score-box {
+        background: #bbada0;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .score-label {
+        font-size: 0.8em;
+        margin-bottom: 5px;
+    }
+
+    .score-value {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    .new-game {
+        background: #8f7a66;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+    .new-game:hover {
+        background: #9f8a76;
+    }
+
+    .grid {
+        background: #bbada0;
+        border-radius: 10px;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+        position: relative;
+    }
+
+    .cell {
+        background: rgba(238, 228, 218, 0.35);
+        border-radius: 5px;
+        aspect-ratio: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2em;
+        font-weight: bold;
+        color: #776e65;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .tile {
+        position: absolute;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2em;
+        font-weight: bold;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .tile-2 { background: #eee4da; color: #776e65; }
+    .tile-4 { background: #ede0c8; color: #776e65; }
+    .tile-8 { background: #f2b179; color: #f9f6f2; }
+    .tile-16 { background: #f59563; color: #f9f6f2; }
+    .tile-32 { background: #f67c5f; color: #f9f6f2; }
+    .tile-64 { background: #f65e3b; color: #f9f6f2; }
+    .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 1.7em; }
+    .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 1.7em; }
+    .tile-512 { background: #edc850; color: #f9f6f2; font-size: 1.7em; }
+    .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 1.5em; }
+    .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1.5em; }
+
+    .game-over {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .game-over-content {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .game-over h2 {
+        color: #776e65;
+        margin-bottom: 20px;
+        font-size: 2em;
+    }
+
+    .instructions {
+        text-align: center;
+        color: #776e65;
+        margin-top: 20px;
+        font-size: 0.9em;
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <h1>2048</h1>
+
+```
+    <div class="score-container">
+        <div class="score-box">
+            <div class="score-label">점수</div>
+            <div class="score-value" id="score">0</div>
+        </div>
+        <div class="score-box">
+            <div class="score-label">최고점수</div>
+            <div class="score-value" id="best">0</div>
+        </div>
+        <button class="new-game" onclick="newGame()">새 게임</button>
+    </div>
+
+    <div class="grid" id="grid">
+        <!-- 배경 셀들 -->
+    </div>
+
+    <div class="instructions">
+        ⬆️⬇️⬅️➡️ 방향키로 타일을 움직여서<br>같은 숫자를 합쳐 2048을 만드세요!
+    </div>
+</div>
+
+<div class="game-over" id="gameOver">
+    <div class="game-over-content">
+        <h2>게임 오버!</h2>
+        <div style="font-size: 1.2em; margin-bottom: 20px;">최종 점수: <span id="finalScore">0</span></div>
+        <button class="new-game" onclick="newGame()">다시 하기</button>
+    </div>
+</div>
+
+<script>
+    let grid = [];
+    let score = 0;
+    let best = localStorage.getItem('best2048') || 0;
+    const gridElement = document.getElementById('grid');
+    const size = 4;
+
+    function init() {
+        grid = Array(size).fill().map(() => Array(size).fill(0));
+        score = 0;
+        updateScore();
+        
+        // 배경 셀 생성
+        gridElement.innerHTML = '';
+        for (let i = 0; i < size * size; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            gridElement.appendChild(cell);
+        }
+        
+        addNewTile();
+        addNewTile();
+        renderGrid();
+    }
+
+    function addNewTile() {
+        const emptyCells = [];
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                if (grid[i][j] === 0) {
+                    emptyCells.push({i, j});
+                }
+            }
+        }
+        
+        if (emptyCells.length > 0) {
+            const {i, j} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+        }
+    }
+
+    function renderGrid() {
+        // 기존 타일 제거
+        const oldTiles = gridElement.querySelectorAll('.tile');
+        oldTiles.forEach(tile => tile.remove());
+        
+        // 새 타일 생성
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                if (grid[i][j] !== 0) {
+                    const tile = document.createElement('div');
+                    tile.className = `tile tile-${grid[i][j]}`;
+                    tile.textContent = grid[i][j];
+                    
+                    const cellSize = gridElement.offsetWidth / size;
+                    tile.style.width = (cellSize - 10) + 'px';
+                    tile.style.height = (cellSize - 10) + 'px';
+                    tile.style.left = (j * cellSize + 10) + 'px';
+                    tile.style.top = (i * cellSize + 10) + 'px';
+                    
+                    gridElement.appendChild(tile);
+                }
+            }
+        }
+    }
+
+    function move(direction) {
+        let moved = false;
+        const newGrid = grid.map(row => [...row]);
+        
+        if (direction === 'left' || direction === 'right') {
+            for (let i = 0; i < size; i++) {
+                let row = newGrid[i].filter(val => val !== 0);
+                if (direction === 'right') row.reverse();
+                
+                for (let j = 0; j < row.length - 1; j++) {
+                    if (row[j] === row[j + 1]) {
+                        row[j] *= 2;
+                        score += row[j];
+                        row.splice(j + 1, 1);
+                    }
+                }
+                
+                while (row.length < size) row.push(0);
+                if (direction === 'right') row.reverse();
+                
+                if (JSON.stringify(row) !== JSON.stringify(newGrid[i])) {
+                    moved = true;
+                }
+                newGrid[i] = row;
+            }
+        } else {
+            for (let j = 0; j < size; j++) {
+                let col = newGrid.map(row => row[j]).filter(val => val !== 0);
+                if (direction === 'down') col.reverse();
+                
+                for (let i = 0; i < col.length - 1; i++) {
+                    if (col[i] === col[i + 1]) {
+                        col[i] *= 2;
+                        score += col[i];
+                        col.splice(i + 1, 1);
+                    }
+                }
+                
+                while (col.length < size) col.push(0);
+                if (direction === 'down') col.reverse();
+                
+                for (let i = 0; i < size; i++) {
+                    if (newGrid[i][j] !== col[i]) moved = true;
+                    newGrid[i][j] = col[i];
+                }
+            }
+        }
+        
+        if (moved) {
+            grid = newGrid;
+            addNewTile();
+            renderGrid();
+            updateScore();
+            
+            if (isGameOver()) {
+                document.getElementById('finalScore').textContent = score;
+                document.getElementById('gameOver').style.display = 'flex';
+            }
+        }
+    }
+
+    function isGameOver() {
+        // 빈 칸이 있으면 게임 계속
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                if (grid[i][j] === 0) return false;
+            }
+        }
+        
+        // 합칠 수 있는 타일이 있으면 게임 계속
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                if (j < size - 1 && grid[i][j] === grid[i][j + 1]) return false;
+                if (i < size - 1 && grid[i][j] === grid[i + 1][j]) return false;
+            }
+        }
+        
+        return true;
+    }
+
+    function updateScore() {
+        document.getElementById('score').textContent = score;
+        if (score > best) {
+            best = score;
+            localStorage.setItem('best2048', best);
+        }
+        document.getElementById('best').textContent = best;
+    }
+
+    function newGame() {
+        document.getElementById('gameOver').style.display = 'none';
+        init();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') move('left');
+        else if (e.key === 'ArrowRight') move('right');
+        else if (e.key === 'ArrowUp') move('up');
+        else if (e.key === 'ArrowDown') move('down');
+    });
+
+    // 터치 지원
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    gridElement.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+
+    gridElement.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+        
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 30) move('right');
+            else if (dx < -30) move('left');
+        } else {
+            if (dy > 30) move('down');
+            else if (dy < -30) move('up');
+        }
+    });
+
+    init();
+</script>
+```
+
+</body>
+</html>
